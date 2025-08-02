@@ -1,4 +1,15 @@
-# Deep Thought AI Assistant
+# De## Funkce
+
+- 🎤 **Hlasový vstup** - Nahrajte svou otázku
+- 🔊 **Hlasový výstup** - AI odpovídá hlasem
+- 🤖 **OpenAI Assistant** - Používá pokročilé Assistants API
+- 💬 **Pokračující konverzace** - Asistent si pamatuje celý kontext
+- 📱 **PWA podpora** - Instalovatelná jako nativní aplikace
+- 🌐 **Offline ready** - Základní funkce fungují i offline
+- 🔗 **URL parametry** - API klíč lze předat přes URL pro snadné sdílení
+- 📝 **Historie konverzací** - Automatické ukládání všech dotazů a odpovědí
+- 🎯 **Automatická detekce ticha** - Nahrávání se ukončí po 4 sekundách ticha
+- 🎨 **Retro terminál design** - Animovaná boot sekvence inspirovaná sci-fit AI Assistant
 
 Pokročilá mobilní PWA aplikace pro hlasový chat s OpenAI AI asistentem s podporou příloh.
 
@@ -25,7 +36,19 @@ Pokročilá mobilní PWA aplikace pro hlasový chat s OpenAI AI asistentem s pod
 2. Otevřete `config.js` a nahraďte `'sk-proj-VÁŠ_API_KLÍČ_ZDE'` svým skutečným API klíčem
 3. Klíč se automaticky uloží při načtení aplikace
 
-### Možnost 2: Ruční zadání
+### Možnost 2: URL parametry (pro sdílení)
+Můžete předat API klíč a Assistant ID přímo v URL:
+```
+https://xfanta.github.io/deep-thought/?key=VÁŠ_API_KLÍČ&assistant=VÁŠ_ASSISTANT_ID
+```
+
+**Podporované parametry:**
+- `key`, `api_key`, `apikey` - pro OpenAI API klíč
+- `assistant`, `assistant_id` - pro ID asistenta
+
+**Bezpečnost:** URL se automaticky vyčistí po načtení klíče z bezpečnostních důvodů.
+
+### Možnost 3: Ruční zadání
 1. Aplikace se automaticky zeptá na API klíč při prvním použití
 2. Klíč se uloží v prohlížeči (Local Storage)
 
@@ -39,10 +62,15 @@ Pokročilá mobilní PWA aplikace pro hlasový chat s OpenAI AI asistentem s pod
 
 1. **Příprava asistenta**: Vytvořte si asistenta v [OpenAI webové administraci](https://platform.openai.com/assistants)
 2. **Nahrání souborů**: Nahrajte soubory do asistenta přes webovou administraci
-3. **První spuštění**: Aplikace se zeptá na OpenAI API klíč
-4. **Hlasový chat**: Stiskněte modré tlačítko s mikrofonem (🎤) a mluvte
-5. **Zastavení nahrávání**: Stiskněte červené tlačítko se stopem (⏹)
-6. **Vymazání konverzace**: Najeďte na pravý horní roh a klikněte na koš (🗑)
+3. **První spuštění**: 
+   - Buď zadejte API klíč přes URL: `?key=váš_klíč&assistant=váš_assistant_id`
+   - Nebo aplikace se zeptá na OpenAI API klíč a Assistant ID
+4. **Hlasový chat**: Stiskněte tlačítko NAHRÁVAT (🎤) a mluvte
+5. **Automatické ukončení**: Přestaňte mluvit na 4 sekundy a nahrávání se ukončí
+6. **Ovládání historie**: 
+   - 1× klik na [RESET]: Vymaže aktuální konverzaci
+   - 2× klik na [RESET]: Zobrazí historii konverzací
+   - 3× klik na [RESET]: Vymaže celou historii
 
 ## Práca s asistentom
 

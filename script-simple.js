@@ -10,6 +10,25 @@ let silenceThreshold = 30; // Práh ticha (0-255)
 let silenceDuration = 4000; // 4 sekundy ticha pro automatické ukončení
 let conversationHistory = JSON.parse(localStorage.getItem("conversation_history") || "[]");
 
+// Kontrola URL parametrů pro API klíč a Assistant ID
+const urlParams = new URLSearchParams(window.location.search);
+const urlApiKey = urlParams.get('key') || urlParams.get('api_key') || urlParams.get('apikey');
+const urlAssistantId = urlParams.get('assistant') || urlParams.get('assistant_id');
+
+// Uložení do localStorage pokud jsou v URL
+if (urlApiKey) {
+  localStorage.setItem('openai_api_key', urlApiKey);
+  console.log('✅ API klíč načten z URL a uložen');
+  // Vyčistíme URL z bezpečnostních důvodů
+  const cleanUrl = window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, cleanUrl);
+}
+
+if (urlAssistantId) {
+  localStorage.setItem('assistant_id', urlAssistantId);
+  console.log('✅ Assistant ID načten z URL a uložen');
+}
+
 // Zobrazíme aktuální nastavení v konzoli
 console.log('🔧 Nastavení Hlubiny Myšlení:');
 if (typeof CONFIG !== 'undefined' && CONFIG) {
