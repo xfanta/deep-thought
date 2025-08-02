@@ -143,7 +143,7 @@ async function sendAudioToAssistant() {
   try {
     const recordedAudio = new Blob(audioChunks, { type: 'audio/webm' });
     
-    const API_KEY = localStorage.getItem('openai_api_key') || CONFIG?.OPENAI_API_KEY || prompt('Zadejte váš OpenAI API klíč:');
+    const API_KEY = localStorage.getItem('openai_api_key') || prompt('Zadejte váš OpenAI API klíč:') || CONFIG?.OPENAI_API_KEY;
     if (!localStorage.getItem('openai_api_key')) {
       localStorage.setItem('openai_api_key', API_KEY);
     }
