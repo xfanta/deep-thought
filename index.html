@@ -2,17 +2,51 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deep Thought AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Hlubina Myšlení™</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Hlubina Myšlení">
+<meta name="theme-color" content="#000000">
 </head>
 <body>
-  <h1>Deep Thought AI</h1>
-  <button id="recordBtn">🎤 Mluv</button>
-  <div id="outputText"></div>
+  <div class="container">
+    <div class="uptime">UPTIME: 7,500,000 years</div>
+    
+    <h1>HLUBINA MYŠLENÍ™</h1>
+    
+    <div class="subtitle">THE ULTIMATE QUESTION ANSWERING SYSTEM</div>
+    <div class="subtitle">SINCE 7.5 MILLION YEARS AGO</div>
+    
+    <div class="boot-messages">
+      <div class="boot-line" style="animation-delay: 1s;">[SPOUŠTĚNÍ...]</div>
+      <div class="boot-line" style="animation-delay: 1.5s;">[INICIALIZACE MYŠLENKOVÝCH MATIC...]</div>
+      <div class="boot-line" style="animation-delay: 2s;">[NAČÍTÁNÍ MODULŮ HLUBOKÉHO POZNÁNÍ...]</div>
+      <div class="boot-line" style="animation-delay: 2.5s;">[PŘÍPRAVA ODPOVĚDÍ...]</div>
+      <div class="boot-line warning" style="animation-delay: 3s;">[VAROVÁNÍ] Zásoby sýra jsou nízké.</div>
+      <div class="boot-line info" style="animation-delay: 3.5s;">[INFO] Pohon nekonečné nepravděpodobnosti kalibrován.</div>
+      <div class="boot-line error" style="animation-delay: 4s;">[CHYBA] Detekována porucha dávkovače čaje.</div>
+      <div class="boot-line" style="animation-delay: 3.5s;">[PŘIPRAVEN]</div>
+    </div>
+    
+    <div class="question-prompt">Zadejte otázku, na kterou chcete znát odpověď:</div>
+    <div class="input-area">
+      <span class="prompt-symbol">&gt;_</span>
+      <button id="recordBtn">NAHRÁVAT</button>
+      <span class="cursor">_</span>
+    </div>
+    
+    <div id="outputText">[READY] Systém je připraven odpovídat na vaše otázky.</div>
+    
+    <div class="tip">(TIP: Pro začátek konverzace stiskněte tlačítko NAHRÁVAT)</div>
+  </div>
 
-<script src="script.js"></script>
+  <button class="hidden-reset" title="1× klik: Reset konverzace | 2× klik: Zobrazit historii | 3× klik: Vymazat historii">[RESET]</button>
+
+<script src="config.js"></script>
+<script src="script-simple.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');

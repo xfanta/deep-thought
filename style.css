@@ -1,16 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
 body {
-  font-family: sans-serif;
-  text-align: center;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
+  background: #000000;
+  color: #00ff41;
   margin: 0;
-  padding: 0;
+  padding: 40px;
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.4;
 }
-button {
-  font-size: 1.5em;
-  padding: 20px;
-  margin-top: 50px;
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
 }
+
+.uptime {
+  text-align: right;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+
+h1 {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 20px 0 15px 0;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.boot-messages {
+  margin: 30px 0 20px 0;
+  font-size: 12px;
+  animation: hideBootMessages 6.5s forwards;
+}
+
+@keyframes hideBootMessages {
+  0% { opacity: 1; height: auto; margin: 30px 0 20px 0; }
+  85% { opacity: 1; height: auto; margin: 30px 0 20px 0; }
+  95% { opacity: 0; height: auto; margin: 30px 0 20px 0; }
+  100% { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+}
+
+.boot-line {
+  margin: 3px 0;
+  opacity: 0;
+  animation: bootSequence 0.8s forwards;
+}
+
+@keyframes bootSequence {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.boot-line.warning {
+  color: #ffff00;
+}
+
+.boot-line.error {
+  color: #ff0000;
+}
+
+.boot-line.info {
+  color: #00ffff;
+}
+
+@keyframes appear {
+  to { opacity: 1; }
+}
+
+.question-prompt {
+  margin: 40px 0 20px 0;
+  font-size: 16px;
+}
+
+.input-area {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  opacity: 0;
+  animation: showInputArea 1s forwards;
+  animation-delay: 6s;
+}
+
+@keyframes showInputArea {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.question-prompt {
+  opacity: 0;
+  animation: showInputArea 1s forwards;
+  animation-delay: 6s;
+}
+
+.prompt-symbol {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+#recordBtn {
+  background: transparent;
+  border: 2px solid #00ff41;
+  color: #00ff41;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 25px;
+  cursor: pointer;
+  margin-right: 20px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+/* Mikrofon ikona v tlačítku NAHRÁVAT - PNG verze */
+#recordBtn::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url('microphone.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-right: 8px;
+  vertical-align: middle;
+  filter: brightness(0) saturate(100%) invert(41%) sepia(100%) saturate(2000%) hue-rotate(120deg) brightness(100%) contrast(100%);
+}
+
+#recordBtn::after {
+  display: none;
+}
+
+#recordBtn:hover {
+  background: #00ff41;
+  color: #000000;
+}
+
+#recordBtn.recording {
+  background: #ff0000;
+  border-color: #ff0000;
+  color: #ffffff;
+  animation: blink 1s infinite;
+}
+
+#recordBtn.recording::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url('microphone.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-right: 8px;
+  vertical-align: middle;
+  filter: brightness(0) saturate(100%) invert(100%);
+  animation: pulse 1s infinite;
+}
+
+#recordBtn.recording::after {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.5; }
+}
+
+.cursor {
+  animation: cursor-blink 1s infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 #outputText {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #00ff41;
+  background: rgba(0, 255, 65, 0.05);
+  min-height: 40px;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.tip {
   margin-top: 30px;
-  font-size: 1.2em;
-  padding: 0 20px;
+  font-size: 14px;
+  color: #888888;
+}
+
+.hidden-reset {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: 1px solid #444444;
+  color: #444444;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: all 0.3s;
+}
+
+.hidden-reset:hover {
+  color: #00ff41;
+  border-color: #00ff41;
+  opacity: 1;
+}
+
+/* Mobilní verze */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .boot-messages {
+    font-size: 14px;
+  }
+  
+  #recordBtn {
+    font-size: 16px;
+    padding: 12px 24px;
+  }
 }
