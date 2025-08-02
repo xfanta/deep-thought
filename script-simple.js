@@ -85,6 +85,20 @@ clearBtn.addEventListener("click", () => {
 });
 
 async function startRecording() {
+  // Odemknutí audio contextu pro iOS - vytvoříme "tichý" audio pro povolení autoplay
+  try {
+    if (!window.audioContextUnlocked) {
+      const silentAudio = new Audio();
+      silentAudio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAAVE=';
+      silentAudio.volume = 0;
+      await silentAudio.play().catch(() => {}); // Ignoruj chyby
+      window.audioContextUnlocked = true;
+      console.log('🔓 Audio context odemčen pro iOS');
+    }
+  } catch (e) {
+    console.log('Audio unlock se nepodařil:', e);
+  }
+  
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   
   // Nastavení Web Audio API pro detekci hlasitosti
@@ -368,37 +382,36 @@ async function textToSpeech(apiKey, text) {
       
       const audio = new Audio(audioUrl);
       
-      // iOS/Safari kompatibilita - musíme přidat event listenery
-      audio.addEventListener('canplaythrough', () => {
-        audio.play().catch(error => {
-          console.warn('Automatické přehrávání audio selhalo (iOS omezení):', error);
-          // Přidáme tlačítko pro manuální přehrání
-          addPlayButton(audio);
-        });
-      });
+      // Nastavíme audio element pro iOS optimalizaci
+      audio.preload = 'auto';
+      audio.setAttribute('playsinline', '');
+      audio.setAttribute('webkit-playsinline', '');
       
-      audio.addEventListener('error', (e) => {
-        console.error('Chyba při načítání audia:', e);
-        console.log('⚠️ Audio se nepodařilo přehrát');
-      });
-      
-      // Pro iOS - pokusíme se o okamžité přehrání
-      audio.load();
-      
-      // Pokus o přehrání s lepším error handlingem
-      try {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            console.log('🔊 Audio přehráno');
-          }).catch(error => {
-            console.warn('Autoplay byl blokován:', error);
-            addPlayButton(audio);
-          });
+      // Pokusíme se o okamžité přehrání (funguje pokud už uživatel kliknul)
+      const tryPlayAudio = async () => {
+        try {
+          await audio.play();
+          console.log('🔊 Audio přehráno automaticky');
+          return true;
+        } catch (error) {
+          console.warn('Autoplay blokován:', error.name);
+          return false;
         }
-      } catch (error) {
-        console.warn('Play() není podporováno:', error);
-        addPlayButton(audio);
+      };
+      
+      // Ihned zkusíme přehrát
+      const playedSuccessfully = await tryPlayAudio();
+      
+      // Pokud se nepovedlo automatické přehrání
+      if (!playedSuccessfully) {
+        // Zkusíme ještě jednou po malém delay (někdy pomůže)
+        setTimeout(async () => {
+          const retrySuccess = await tryPlayAudio();
+          if (!retrySuccess) {
+            // Teprve teď zobrazíme fallback tlačítko
+            addPlayButton(audio);
+          }
+        }, 100);
       }
     } else {
       console.error('❌ Chyba TTS:', await ttsRes.text());
@@ -464,35 +477,45 @@ function addPlayButton(audio) {
   
   const playBtn = document.createElement('button');
   playBtn.id = 'playAudioBtn';
-  playBtn.innerHTML = '🔊 Přehrát odpověď';
+  playBtn.innerHTML = '🔊 Tap to play';
   playBtn.style.cssText = `
-    display: block;
-    margin: 15px auto 0;
-    padding: 12px 24px;
-    background: #007AFF;
+    display: inline-block;
+    margin: 10px 0 0 10px;
+    padding: 8px 16px;
+    background: rgba(0,122,255,0.8);
     color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border: 1px solid #007AFF;
+    border-radius: 6px;
+    font-size: 14px;
     font-family: inherit;
     cursor: pointer;
-    animation: pulse 2s infinite;
-    box-shadow: 0 2px 8px rgba(0,122,255,0.3);
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
   `;
+  
+  // Hover efekt
+  playBtn.onmouseenter = () => {
+    playBtn.style.background = '#007AFF';
+    playBtn.style.transform = 'scale(1.05)';
+  };
+  playBtn.onmouseleave = () => {
+    playBtn.style.background = 'rgba(0,122,255,0.8)';
+    playBtn.style.transform = 'scale(1)';
+  };
   
   playBtn.onclick = () => {
     audio.play().then(() => {
-      playBtn.innerHTML = '✅ Přehráno';
-      setTimeout(() => playBtn.remove(), 2000);
+      playBtn.innerHTML = '✅';
+      playBtn.style.background = '#34C759';
+      setTimeout(() => playBtn.remove(), 1500);
     }).catch(error => {
       console.error('Nepodařilo se přehrát audio:', error);
-      playBtn.innerHTML = '❌ Audio nedostupné';
+      playBtn.innerHTML = '❌';
       playBtn.disabled = true;
       playBtn.style.background = '#666';
     });
   };
   
-  // Přidáme tlačítko pod výstupní text
-  const outputContainer = document.getElementById('outputText').parentNode;
-  outputContainer.appendChild(playBtn);
+  // Přidáme tlačítko na konec output textu
+  document.getElementById('outputText').appendChild(playBtn);
 }
