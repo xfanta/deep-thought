@@ -45,7 +45,19 @@
 
   <button class="hidden-reset" title="1× klik: Reset konverzace | 2× klik: Zobrazit historii | 3× klik: Vymazat historii">[RESET]</button>
 
-<script src="config.js"></script>
+<script>
+// Pokus o načtení konfigurace (může selhat na GitHub Pages)
+try {
+  const configScript = document.createElement('script');
+  configScript.src = 'config.js';
+  configScript.onerror = () => {
+    console.log('⚠️ Config.js nebyl nalezen - použije se ruční zadání API klíče');
+  };
+  document.head.appendChild(configScript);
+} catch (e) {
+  console.log('⚠️ Konfigurace se nepodařila načíst');
+}
+</script>
 <script src="script-simple.js"></script>
 <script>
 if ('serviceWorker' in navigator) {

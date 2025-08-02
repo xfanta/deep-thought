@@ -12,14 +12,14 @@ let conversationHistory = JSON.parse(localStorage.getItem("conversation_history"
 
 // Zobrazíme aktuální nastavení v konzoli
 console.log('🔧 Nastavení Hlubiny Myšlení:');
-if (typeof CONFIG !== 'undefined') {
-  console.log(`   Model: ${CONFIG.MODEL}`);
-  console.log(`   Hlas: ${CONFIG.VOICE}`);
-  console.log(`   Max tokeny: ${CONFIG.MAX_TOKENS}`);
-  console.log(`   ID asistenta: ${CONFIG.ASSISTANT_ID}`);
+if (typeof CONFIG !== 'undefined' && CONFIG) {
+  console.log(`   Model: ${CONFIG.MODEL || 'gpt-4o'}`);
+  console.log(`   Hlas: ${CONFIG.VOICE || 'onyx'}`);
+  console.log(`   Max tokeny: ${CONFIG.MAX_TOKENS || 500}`);
+  console.log(`   ID asistenta: ${CONFIG.ASSISTANT_ID || 'Nebyl nastaven'}`);
   console.log(`   API klíč: ${CONFIG.OPENAI_API_KEY ? '✅ Nastaven' : '❌ Chybí'}`);
 } else {
-  console.log('   ⚠️ Konfigurace nebyla načtena');
+  console.log('   ⚠️ Konfigurace nebyla načtena - bude vyžadováno ruční zadání');
 }
 
 btn.addEventListener("click", async () => {
@@ -216,6 +216,19 @@ async function sendMessageToAssistant(apiKey, message) {
       })
     });
     
+    // Získej Assistant ID
+    let assistantId = (typeof CONFIG !== 'undefined' && CONFIG?.ASSISTANT_ID) || 
+                     localStorage.getItem('assistant_id');
+    
+    if (!assistantId) {
+      assistantId = prompt('Zadejte ID vašeho OpenAI asistenta (začíná asst_):');
+      if (assistantId) {
+        localStorage.setItem('assistant_id', assistantId);
+      } else {
+        assistantId = 'asst_0bT4Ceja8eeEDfwlrnxCS4j0'; // Fallback
+      }
+    }
+    
     // Spusť asistenta
     const runRes = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
       method: 'POST',
@@ -225,7 +238,7 @@ async function sendMessageToAssistant(apiKey, message) {
         'OpenAI-Beta': 'assistants=v2'
       },
       body: JSON.stringify({
-        assistant_id: CONFIG?.ASSISTANT_ID || 'asst_0bT4Ceja8eeEDfwlrnxCS4j0'
+        assistant_id: assistantId
       })
     });
     
@@ -325,7 +338,7 @@ async function textToSpeech(apiKey, text) {
       body: JSON.stringify({
         model: 'tts-1',
         input: textForSpeech,
-        voice: (typeof CONFIG !== 'undefined' && CONFIG.VOICE) || 'nova'
+        voice: (typeof CONFIG !== 'undefined' && CONFIG?.VOICE) || 'onyx'
       })
     });
     
