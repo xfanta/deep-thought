@@ -191,10 +191,74 @@ async function sendToOpenAI() {
     const audioUrl = URL.createObjectURL(speechAudio);
     
     const audio = new Audio(audioUrl);
-    audio.play();
+    
+    // iOS/Safari kompatibilita - musíme přidat event listenery
+    audio.addEventListener('canplaythrough', () => {
+      audio.play().catch(error => {
+        console.warn('Automatické přehrávání audio selhalo (iOS omezení):', error);
+        // Přidáme tlačítko pro manuální přehrání
+        addPlayButton(audio);
+      });
+    });
+    
+    audio.addEventListener('error', (e) => {
+      console.error('Chyba při načítání audia:', e);
+      output.innerText += '\n\n⚠️ Audio se nepodařilo přehrát';
+    });
+    
+    // Pro iOS - pokusíme se o okamžité přehrání
+    audio.load();
+    
+    // Pokus o přehrání s lepším error handlingem
+    try {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.warn('Autoplay byl blokován:', error);
+          addPlayButton(audio);
+        });
+      }
+    } catch (error) {
+      console.warn('Play() není podporováno:', error);
+      addPlayButton(audio);
+    }
     
   } catch (error) {
     console.error('Chyba:', error);
     output.innerText = "Nastala chyba. Zkuste to znovu.";
   }
+}
+
+// Funkce pro přidání play tlačítka jako fallback pro iOS
+function addPlayButton(audio) {
+  // Odebereme předchozí play tlačítko pokud existuje
+  const existingBtn = document.getElementById('playAudioBtn');
+  if (existingBtn) existingBtn.remove();
+  
+  const playBtn = document.createElement('button');
+  playBtn.id = 'playAudioBtn';
+  playBtn.innerHTML = '🔊 Přehrát odpověď';
+  playBtn.style.cssText = `
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    animation: pulse 2s infinite;
+  `;
+  
+  playBtn.onclick = () => {
+    audio.play().then(() => {
+      playBtn.remove();
+    }).catch(error => {
+      console.error('Nepodařilo se přehrát audio:', error);
+      playBtn.innerHTML = '❌ Audio nedostupné';
+      playBtn.disabled = true;
+    });
+  };
+  
+  document.getElementById('outputText').appendChild(playBtn);
 }
