@@ -1,11 +1,6 @@
 {
-   "build": {
-      "env": {
-         "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-      }
-   },
    "functions": {
-      "app/api/**/*.ts": {
+      "api/**/*.js": {
          "runtime": "@vercel/node@20"
       }
    }
