@@ -3,5 +3,8 @@
     "api/messages.js": {
       "runtime": "nodejs20.x"
     }
+  },
+  "env": {
+    "ADMIN_KEY": "@admin-key"
   }
 }

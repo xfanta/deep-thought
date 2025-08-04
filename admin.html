@@ -108,6 +108,16 @@ button:hover {
   border-color: #ff4444;
   background: #110000;
 }
+
+.storage-info {
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  background: #001111;
+  font-size: 12px;
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -115,6 +125,7 @@ button:hover {
   <h1>🔧 ADMINISTRACE HLUBINY MYŠLENÍ™</h1>
   
   <div id="status"></div>
+  <div id="storageInfo" class="storage-info"></div>
   
   <form id="messageForm">
     <div class="form-group">
@@ -178,6 +189,10 @@ async function loadMessages() {
     
     if (result.success) {
       displayMessages(result.messages);
+      // Zobrazíme info o úložišti
+      if (result.storage) {
+        document.getElementById('storageInfo').innerHTML = `💾 Úložiště: ${result.storage}`;
+      }
     } else {
       showStatus('❌ Chyba při načítání zpráv', 'error');
     }
