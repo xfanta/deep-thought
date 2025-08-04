@@ -1,16 +1,7 @@
 {
   "functions": {
     "api/messages.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/admin.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    }
-  ]
+  }
 }

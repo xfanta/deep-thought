@@ -1,24 +1,5 @@
 // API endpoint pro správu zpráv z hlubiny
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const MESSAGES_FILE = '/tmp/messages.json';
-
-// Načtení zpráv ze souboru
-async function loadMessages() {
-  try {
-    const data = await fs.readFile(MESSAGES_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    // Pokud soubor neexistuje, vrátíme prázdné pole
-    return [];
-  }
-}
-
-// Uložení zpráv do souboru
-async function saveMessages(messages) {
-  await fs.writeFile(MESSAGES_FILE, JSON.stringify(messages, null, 2));
-}
+const MESSAGES_DATA = [];
 
 export default async function handler(req, res) {
   // CORS hlavičky
@@ -33,14 +14,12 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       // Získání všech zpráv
-      const messages = await loadMessages();
-      
       // Seřadíme od nejnovější k nejstarší
-      messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const sortedMessages = MESSAGES_DATA.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       return res.status(200).json({ 
         success: true, 
-        messages: messages.slice(0, 10) // Zobrazíme pouze posledních 10 zpráv
+        messages: sortedMessages.slice(0, 10) // Zobrazíme pouze posledních 10 zpráv
       });
     }
 
@@ -57,8 +36,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Zpráva nesmí být prázdná' });
       }
 
-      const messages = await loadMessages();
-      
       const newMessage = {
         id: Date.now().toString(),
         message: message.trim(),
@@ -66,8 +43,7 @@ export default async function handler(req, res) {
         created: new Date().toLocaleString('cs-CZ')
       };
 
-      messages.push(newMessage);
-      await saveMessages(messages);
+      MESSAGES_DATA.push(newMessage);
 
       return res.status(201).json({ 
         success: true, 
@@ -84,14 +60,14 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, error: 'Neplatný admin klíč' });
       }
 
-      const messages = await loadMessages();
-      const filteredMessages = messages.filter(msg => msg.id !== id);
+      const originalLength = MESSAGES_DATA.length;
+      const index = MESSAGES_DATA.findIndex(msg => msg.id === id);
       
-      if (messages.length === filteredMessages.length) {
+      if (index === -1) {
         return res.status(404).json({ success: false, error: 'Zpráva nenalezena' });
       }
 
-      await saveMessages(filteredMessages);
+      MESSAGES_DATA.splice(index, 1);
 
       return res.status(200).json({ 
         success: true, 

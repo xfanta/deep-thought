@@ -64,8 +64,14 @@ async function loadMessagesFromDepth() {
       container.innerHTML = '<div class="no-messages">Žádné zprávy z hlubiny nenalezeny.</div>';
     }
   } catch (error) {
-    container.innerHTML = '<div class="no-messages">Chyba při načítání zpráv z hlubiny.</div>';
-    console.error('Chyba při načítání zpráv:', error);
+    // Fallback pro lokální development
+    container.innerHTML = `
+      <div class="message-item">
+        <div class="message-timestamp">[${new Date().toLocaleString('cs-CZ')}]</div>
+        <div>🔧 Systém zpráv z hlubiny je momentálně offline. Pro plnou funkcionalnost nasaďte na Vercel.</div>
+      </div>
+    `;
+    console.log('API nedostupné, zobrazuji fallback zprávu');
   }
 }
 
