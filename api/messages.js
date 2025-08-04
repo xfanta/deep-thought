@@ -161,12 +161,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       // Přidání nové zprávy
-      const { message, adminKey } = req.body;
-      
-      // Ověření admin klíče
-      if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'hlubina42') {
-        return res.status(401).json({ success: false, error: 'Neplatný admin klíč' });
-      }
+      const { message } = req.body;
 
       if (!message || message.trim().length === 0) {
         return res.status(400).json({ success: false, error: 'Zpráva nesmí být prázdná' });

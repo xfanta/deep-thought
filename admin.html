@@ -129,11 +129,6 @@ button:hover {
   
   <form id="messageForm">
     <div class="form-group">
-      <label for="adminKey">Admin klíč:</label>
-      <input type="password" id="adminKey" placeholder="Zadejte admin klíč" required>
-    </div>
-    
-    <div class="form-group">
       <label for="messageText">Zpráva z hlubiny:</label>
       <textarea id="messageText" placeholder="Zadejte zprávu..." required></textarea>
     </div>
@@ -148,12 +143,9 @@ button:hover {
 </div>
 
 <script>
-let adminKey = '';
-
 document.getElementById('messageForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   
-  adminKey = document.getElementById('adminKey').value;
   const messageText = document.getElementById('messageText').value;
   
   try {
@@ -163,8 +155,7 @@ document.getElementById('messageForm').addEventListener('submit', async (e) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: messageText,
-        adminKey: adminKey
+        message: messageText
       })
     });
     
