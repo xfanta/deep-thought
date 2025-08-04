@@ -238,8 +238,7 @@ async function deleteMessage(id) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: id,
-        adminKey: adminKey || document.getElementById('adminKey').value
+        id: id
       })
     });
     

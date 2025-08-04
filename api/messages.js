@@ -261,28 +261,25 @@ export default async function handler(req, res) {
 
     if (req.method === 'DELETE') {
       // Smazání zprávy
-      const { id, adminKey } = req.body;
-      
-      if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'hlubina42') {
-        return res.status(401).json({ success: false, error: 'Neplatný admin klíč' });
-      }
+      const { id } = req.body;
 
       const messages = await loadMessages();
-      const index = messages.findIndex(msg => msg.id === id);
+      const messagesArray = Array.isArray(messages) ? messages : [];
+      const index = messagesArray.findIndex(msg => msg.id === id);
       
       if (index === -1) {
         return res.status(404).json({ success: false, error: 'Zpráva nenalezena' });
       }
 
-      messages.splice(index, 1);
-      const saveResult = await saveMessages(messages);
+      messagesArray.splice(index, 1);
+      const saveResult = await saveMessages(messagesArray);
 
       return res.status(200).json({ 
         success: true, 
         message: 'Zpráva byla smazána',
         storage: saveResult.storage,
         saved: saveResult.success,
-        count: messages.length
+        count: messagesArray.length
       });
     }
 
