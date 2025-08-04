@@ -7,7 +7,25 @@ let MESSAGES_CACHE = [];
 // Funkce pro načtení zpráv z Upstash Redis
 async function loadMessages() {
   try {
-    // Upstash Redis REST API
+    // Upstash Redis REST API - správné proměnné prostředí
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const response = await fetch(`${process.env.KV_REST_API_URL}/get/deep_thought_messages`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.KV_REST_API_TOKEN}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.result) {
+          const messages = JSON.parse(data.result);
+          MESSAGES_CACHE = messages; // Aktualizujeme cache
+          return messages;
+        }
+      }
+    }
+    
+    // Fallback na starší Upstash proměnné (pokud existují)
     if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
       const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/get/deep_thought_messages`, {
         headers: {
@@ -19,7 +37,7 @@ async function loadMessages() {
         const data = await response.json();
         if (data.result) {
           const messages = JSON.parse(data.result);
-          MESSAGES_CACHE = messages; // Aktualizujeme cache
+          MESSAGES_CACHE = messages;
           return messages;
         }
       }
@@ -70,7 +88,25 @@ async function loadMessages() {
 // Funkce pro uložení zpráv do Upstash Redis
 async function saveMessages(messages) {
   try {
-    // Uložení do Upstash Redis
+    // Uložení do Upstash Redis - správné proměnné prostředí
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const response = await fetch(`${process.env.KV_REST_API_URL}/set/deep_thought_messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.KV_REST_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify([JSON.stringify(messages)])
+      });
+      
+      if (response.ok) {
+        MESSAGES_CACHE = messages;
+        console.log('✅ Zprávy uloženy do Upstash Redis');
+        return { success: true, storage: 'Upstash Redis' };
+      }
+    }
+    
+    // Fallback na starší Upstash proměnné
     if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
       const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/set/deep_thought_messages`, {
         method: 'POST',
@@ -83,7 +119,7 @@ async function saveMessages(messages) {
       
       if (response.ok) {
         MESSAGES_CACHE = messages;
-        console.log('✅ Zprávy uloženy do Upstash Redis');
+        console.log('✅ Zprávy uloženy do Upstash Redis (legacy)');
         return { success: true, storage: 'Upstash Redis' };
       }
     }
@@ -242,11 +278,11 @@ export default async function handler(req, res) {
 
 // Funkce pro určení typu úložiště
 function getStorageType() {
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
     return 'Upstash Redis ⚡';
   }
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    return 'Vercel KV (Redis) 🔥';
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return 'Upstash Redis (legacy) ⚡';
   }
   if (process.env.JSONBIN_API_KEY && process.env.JSONBIN_BIN_ID) {
     return 'JSONBin.io 🌐';
