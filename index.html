@@ -1,158 +1,56 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Hlubina Myšlení™</title>
-
-<!-- Cache control meta tagy -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Hlubina Myšlení">
-<meta name="theme-color" content="#000000">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hlubina Myšlení™ - Přesměrování</title>
+    
+    <!-- Okamžité přesměrování -->
+    <meta http-equiv="refresh" content="0; url=https://deep-thought-beta.vercel.app/">
+    
+    <!-- Canonical URL pro SEO -->
+    <link rel="canonical" href="https://deep-thought-beta.vercel.app/">
+    
+    <!-- JavaScript fallback -->
+    <script>
+        window.location.replace("https://deep-thought-beta.vercel.app/");
+    </script>
+    
+    <style>
+        body {
+            background: #000;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .redirect-message {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+        a {
+            color: #00ff41;
+            text-decoration: underline;
+        }
+        a:hover {
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
-<script>
-// Anti-cache timestamp pro všechny soubory
-const timestamp = new Date().getTime();
-
-// Přidáme timestamp k CSS
-const cssLink = document.querySelector('link[rel="stylesheet"]');
-if (cssLink) {
-  cssLink.href = `style.css?v=${timestamp}`;
-}
-
-// Načtení konfigurace s timestamp
-try {
-  const configScript = document.createElement('script');
-  configScript.src = `config.js?v=${timestamp}`;
-  configScript.onerror = () => {
-    console.log('⚠️ Config.js nebyl nalezen - použije se ruční zadání API klíče');
-  };
-  document.head.appendChild(configScript);
-} catch (e) {
-  console.log('⚠️ Konfigurace se nepodařila načíst');
-}
-
-// Načtení hlavního JS s timestamp
-const scriptElement = document.createElement('script');
-scriptElement.src = `script-simple.js?v=${timestamp}`;
-document.head.appendChild(scriptElement);
-
-// Načtení zpráv z hlubiny
-async function loadMessagesFromDepth() {
-  const container = document.getElementById('messagesFromDepth');
-  
-  try {
-    const response = await fetch('/api/messages');
-    const result = await response.json();
-    
-    if (result.success && result.messages.length > 0) {
-      container.innerHTML = result.messages.map(msg => `
-        <div class="message-item">
-          <div class="message-timestamp">[${msg.created}]</div>
-          <div>${formatMessageWithLineBreaks(msg.message)}</div>
-        </div>
-      `).join('');
-    } else {
-      container.innerHTML = '<div class="no-messages">Žádné zprávy z hlubiny nenalezeny.</div>';
-    }
-  } catch (error) {
-    // Fallback pro lokální development
-    container.innerHTML = `
-      <div class="message-item">
-        <div class="message-timestamp">[${new Date().toLocaleString('cs-CZ')}]</div>
-        <div>🔧 Systém zpráv z hlubiny je momentálně offline. Pro plnou funkcionalnost nasaďte na Vercel.</div>
-      </div>
-    `;
-    console.log('API nedostupné, zobrazuji fallback zprávu');
-  }
-}
-
-// Funkce pro konverzi zalomení řádků na HTML <br> tagy
-function formatMessageWithLineBreaks(message) {
-  if (!message) return '';
-  
-  // Nahradíme \n a \r\n za <br> tagy a escapujeme HTML
-  return message
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\r?\n/g, '<br>');
-}
-
-// Načteme zprávy po načtení stránky
-setTimeout(loadMessagesFromDepth, 1000);
-
-// Obnovujeme zprávy každých 30 sekund
-setInterval(loadMessagesFromDepth, 30000);
-</script>
-  <div class="container">
-    <div class="uptime">UPTIME: 7,500,000 years</div>
-    
-    <h1>HLUBINA MYŠLENÍ™</h1>
-    
-    <div class="subtitle">THE ULTIMATE QUESTION ANSWERING SYSTEM</div>
-    <div class="subtitle">SINCE 7.5 MILLION YEARS AGO</div>
-    
-    <div class="boot-messages">
-      <div class="boot-line" style="animation-delay: 1s;">[SPOUŠTĚNÍ...]</div>
-      <div class="boot-line" style="animation-delay: 1.5s;">[INICIALIZACE MYŠLENKOVÝCH MATIC...]</div>
-      <div class="boot-line" style="animation-delay: 2s;">[NAČÍTÁNÍ MODULŮ HLUBOKÉHO POZNÁNÍ...]</div>
-      <div class="boot-line" style="animation-delay: 2.5s;">[PŘÍPRAVA ODPOVĚDÍ...]</div>
-      <div class="boot-line warning" style="animation-delay: 3s;">[VAROVÁNÍ] Zásoby sýra jsou nízké.</div>
-      <div class="boot-line info" style="animation-delay: 3.5s;">[INFO] Pohon nekonečné nepravděpodobnosti kalibrován.</div>
-      <div class="boot-line error" style="animation-delay: 4s;">[CHYBA] Detekována porucha dávkovače čaje.</div>
-      <div class="boot-line" style="animation-delay: 3.5s;">[PŘIPRAVEN]</div>
+    <div class="redirect-message">
+        <h1>HLUBINA MYŠLENÍ™</h1>
+        <p>[PŘESMĚROVÁNÍ] Aplikace byla přesunuta...</p>
+        <p>Automaticky přesměrovávám na novou adresu:</p>
+        <p><strong>https://deep-thought-beta.vercel.app/</strong></p>
+        <p>Pokud se přesměrování nespustilo, <a href="https://deep-thought-beta.vercel.app/">klikněte zde</a>.</p>
     </div>
-
-    <div class="question-prompt">POZOR!!! Pokud není do Hlubiny myšlení vložena <b>SONDA</b>, tak výsledky jsou nezkalibrované, zavádějící až nesmyslné.</div>
-    
-    <div class="question-prompt">ZPRÁVY Z HLUBINY!!!</div>
-    <div id="messagesFromDepth" class="messages-container">
-      <div class="loading">📡 Načítání zpráv z hlubiny...</div>
-    </div>
-
-    <div class="question-prompt">Zadejte otázku, na kterou chcete znát odpověď:</div>
-    <div class="input-area">
-      <span class="prompt-symbol">&gt;_</span>
-      <button id="recordBtn">NAHRÁVAT</button>
-      <span class="cursor">_</span>
-    </div>
-    
-    <div id="outputText">[READY] Systém je připraven odpovídat na vaše otázky.</div>
-    
-    <div class="tip">(TIP: Pro začátek konverzace stiskněte tlačítko NAHRÁVAT)</div>
-  </div>
-
-  <button class="hidden-reset" title="1× klik: Reset konverzace | 2× klik: Zobrazit historii | 3× klik: Vymazat historii">[RESET]</button>
-
-<script>
-// Pokus o načtení konfigurace (může selhat na GitHub Pages)
-try {
-  const configScript = document.createElement('script');
-  const timestamp = new Date().getTime();
-  configScript.src = `config.js?v=${timestamp}`;
-  configScript.onerror = () => {
-    console.log('⚠️ Config.js nebyl nalezen - použije se ruční zadání API klíče');
-  };
-  document.head.appendChild(configScript);
-} catch (e) {
-  console.log('⚠️ Konfigurace se nepodařila načíst');
-}
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
 </body>
 </html>
