@@ -259,3 +259,69 @@ h1 {
     padding: 12px 24px;
   }
 }
+
+/* Styly pro zprávy z hlubiny */
+.messages-container {
+  margin: 20px 0;
+  border: 1px solid #00ff41;
+  background: rgba(0, 255, 65, 0.03);
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.message-item {
+  margin: 10px 0;
+  padding: 10px;
+  border-left: 3px solid #00ff41;
+  background: rgba(0, 255, 65, 0.05);
+  font-size: 14px;
+  animation: fadeInMessage 0.5s ease-in;
+}
+
+.message-timestamp {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.loading {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+.no-messages {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+@keyframes fadeInMessage {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Scrollbar pro zprávy */
+.messages-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #111;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #00ff41;
+  border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #00cc33;
+}

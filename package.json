@@ -1,0 +1,17 @@
+{
+  "name": "deep-thought",
+  "version": "1.0.0",
+  "description": "The Ultimate Question Answering System with News from the Depth",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'Static site - no build needed'",
+    "start": "echo 'Static site deployed on Vercel'"
+  },
+  "keywords": ["ai", "voice", "openai", "hitchhikers-guide"],
+  "author": "Deep Thought",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

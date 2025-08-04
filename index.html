@@ -44,6 +44,36 @@ try {
 const scriptElement = document.createElement('script');
 scriptElement.src = `script-simple.js?v=${timestamp}`;
 document.head.appendChild(scriptElement);
+
+// Načtení zpráv z hlubiny
+async function loadMessagesFromDepth() {
+  const container = document.getElementById('messagesFromDepth');
+  
+  try {
+    const response = await fetch('/api/messages');
+    const result = await response.json();
+    
+    if (result.success && result.messages.length > 0) {
+      container.innerHTML = result.messages.map(msg => `
+        <div class="message-item">
+          <div class="message-timestamp">[${msg.created}]</div>
+          <div>${msg.message}</div>
+        </div>
+      `).join('');
+    } else {
+      container.innerHTML = '<div class="no-messages">Žádné zprávy z hlubiny nenalezeny.</div>';
+    }
+  } catch (error) {
+    container.innerHTML = '<div class="no-messages">Chyba při načítání zpráv z hlubiny.</div>';
+    console.error('Chyba při načítání zpráv:', error);
+  }
+}
+
+// Načteme zprávy po načtení stránky
+setTimeout(loadMessagesFromDepth, 1000);
+
+// Obnovujeme zprávy každých 30 sekund
+setInterval(loadMessagesFromDepth, 30000);
 </script>
   <div class="container">
     <div class="uptime">UPTIME: 7,500,000 years</div>
@@ -66,27 +96,10 @@ document.head.appendChild(scriptElement);
 
     <div class="question-prompt">POZOR!!! Pokud není do Hlubiny myšlení vložena <b>SONDA</b>, tak výsledky jsou nezkalibrované, zavádějící až nesmyslné.</div>
     
-    <div class="question-prompt">ZPRÁVA Z HLUBINY!!! <br /><br />Spodní své čvachtavé údy vlhkosnubné<br />
-užij a přemosti vzdálenost chůzoklusnou,<br />
-nelezneš znamení mihavě větromilné,<br />
-dojdeš-li prostoru dimenzně zvoucího se různě, jež výhled srdcepolesný pohledem ukáže,<br />
-sídliště Žákava tam v dáli bdí.<br /><br />
-
-Bulvymrkné rozeslz v horizont událostí širý,<br />
-kochej nitro své prostorem vůkolširým,<br />
-své spolunauty, bratry sesterné vyhlížej,<br />
-v širou dál ostrížím zrakočumem hleď.<br /><br />
-
-V poledne pravé a minutě čtyřicáté páté pozemského mezičasu,<br />
-rozpoznej změn tam vzdušné čistosféry,<br />
-chytneš-li znaky změny správně<br />
-signál pak zjeví se velkolepě mocnědmoucí<br />
-jež odkryje místo ti tajené přede všemi<br />
-tam slizkosvůdný vogonů vůdce dlí.<br /><br />
-
-Malincí vyražte ke kravínu,<br />
-prostřední ku lípě Dobrého ducha<br />
-a velcí k k místu zvanému Kohouty.</div>
+    <div class="question-prompt">ZPRÁVY Z HLUBINY!!!</div>
+    <div id="messagesFromDepth" class="messages-container">
+      <div class="loading">📡 Načítání zpráv z hlubiny...</div>
+    </div>
 
     <div class="question-prompt">Zadejte otázku, na kterou chcete znát odpověď:</div>
     <div class="input-area">

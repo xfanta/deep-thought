@@ -1,4 +1,43 @@
-# De## Funkce
+# 🤖 Hlubina Myšlení™ (Deep Thought)
+
+Hlasová AI aplikace inspirovaná Stopařovým průvodcem galaxií s administrací zpráv z hlubiny.
+
+## 🚀 Deployment na Vercel
+
+### Postup nasazení:
+
+1. **Registrace na Vercel**: Jděte na [vercel.com](https://vercel.com) a zaregistrujte se
+2. **Připojte GitHub**: Propojte Vercel s vaším GitHub účtem
+3. **Import projektu**: Klikněte na "New Project" a vyberte tento repozitář
+4. **Nastavte environment proměnné**:
+   - `ADMIN_KEY`: Váš tajný klíč pro administraci (doporučuji silné heslo)
+5. **Deploy**: Klikněte na "Deploy"
+
+### Environment proměnné:
+```
+ADMIN_KEY=your-secret-admin-key-here
+```
+
+### Po nasazení:
+- **Hlavní aplikace**: `https://your-app.vercel.app/`
+- **Administrace**: `https://your-app.vercel.app/admin.html`
+
+## 📡 Zprávy z hlubiny
+
+Aplikace nyní obsahuje systém zpráv, které se zobrazují na hlavní stránce pod "ZPRÁVY Z HLUBINY!!!".
+
+### Administrace zpráv:
+1. Otevřete `/admin.html`
+2. Zadejte admin klíč (nastavený v environment proměnných)
+3. Přidávejte, upravujte a mažte zprávy
+4. Zprávy se zobrazují automaticky na hlavní stránce
+
+### API Endpoints:
+- `GET /api/messages` - Získání zpráv
+- `POST /api/messages` - Přidání zprávy
+- `DELETE /api/messages` - Smazání zprávy
+
+## 🎤 Funkce
 
 - 🎤 **Hlasový vstup** - Nahrajte svou otázku
 - 🔊 **Hlasový výstup** - AI odpovídá hlasem
