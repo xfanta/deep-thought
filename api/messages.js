@@ -17,10 +17,25 @@ async function loadMessages() {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 Redis response:', data);
         if (data.result) {
-          const messages = JSON.parse(data.result);
-          MESSAGES_CACHE = messages; // Aktualizujeme cache
-          return messages;
+          try {
+            const messages = JSON.parse(data.result);
+            console.log('✅ Parsed messages from Redis:', messages.length, 'messages');
+            // Ověříme strukturu zpráv
+            messages.forEach((msg, index) => {
+              if (!msg.id) {
+                console.warn(`⚠️ Message ${index} missing ID:`, msg);
+                // Přidáme ID pokud chybí
+                msg.id = `fallback_${Date.now()}_${index}`;
+              }
+            });
+            MESSAGES_CACHE = messages; // Aktualizujeme cache
+            return messages;
+          } catch (parseError) {
+            console.error('❌ Error parsing Redis data:', parseError);
+            return MESSAGES_CACHE;
+          }
         }
       }
     }
@@ -205,6 +220,10 @@ export default async function handler(req, res) {
 
       const messages = await loadMessages();
       
+      // Zajistíme, aby messages bylo pole
+      const messagesArray = Array.isArray(messages) ? messages : [];
+      console.log('🔍 Current messages count:', messagesArray.length);
+      
       const newMessage = {
         id: Date.now().toString(),
         message: message.trim(),
@@ -219,14 +238,16 @@ export default async function handler(req, res) {
         })
       };
 
-      messages.push(newMessage);
+      console.log('🔍 Creating new message:', newMessage);
+
+      messagesArray.push(newMessage);
       
       // Omezíme na posledních 100 zpráv pro úsporu místa
-      if (messages.length > 100) {
-        messages.splice(0, messages.length - 100);
+      if (messagesArray.length > 100) {
+        messagesArray.splice(0, messagesArray.length - 100);
       }
       
-      const saveResult = await saveMessages(messages);
+      const saveResult = await saveMessages(messagesArray);
 
       return res.status(201).json({ 
         success: true, 
