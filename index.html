@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Hlubina Myšlení™</title>
+
+<!-- Cache control meta tagy -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,6 +18,33 @@
 <meta name="theme-color" content="#000000">
 </head>
 <body>
+<script>
+// Anti-cache timestamp pro všechny soubory
+const timestamp = new Date().getTime();
+
+// Přidáme timestamp k CSS
+const cssLink = document.querySelector('link[rel="stylesheet"]');
+if (cssLink) {
+  cssLink.href = `style.css?v=${timestamp}`;
+}
+
+// Načtení konfigurace s timestamp
+try {
+  const configScript = document.createElement('script');
+  configScript.src = `config.js?v=${timestamp}`;
+  configScript.onerror = () => {
+    console.log('⚠️ Config.js nebyl nalezen - použije se ruční zadání API klíče');
+  };
+  document.head.appendChild(configScript);
+} catch (e) {
+  console.log('⚠️ Konfigurace se nepodařila načíst');
+}
+
+// Načtení hlavního JS s timestamp
+const scriptElement = document.createElement('script');
+scriptElement.src = `script-simple.js?v=${timestamp}`;
+document.head.appendChild(scriptElement);
+</script>
   <div class="container">
     <div class="uptime">UPTIME: 7,500,000 years</div>
     
@@ -33,6 +66,28 @@
 
     <div class="question-prompt">POZOR!!! Pokud není do Hlubiny myšlení vložena <b>SONDA</b>, tak výsledky jsou nezkalibrované, zavádějící až nesmyslné.</div>
     
+    <div class="question-prompt">ZPRÁVA Z HLUBINY!!! <br /><br />Spodní své čvachtavé údy vlhkosnubné<br />
+užij a přemosti vzdálenost chůzoklusnou,<br />
+nelezneš znamení mihavě větromilné,<br />
+dojdeš-li prostoru dimenzně zvoucího se různě, jež výhled srdcepolesný pohledem ukáže,<br />
+sídliště Žákava tam v dáli bdí.<br /><br />
+
+Bulvymrkné rozeslz v horizont událostí širý,<br />
+kochej nitro své prostorem vůkolširým,<br />
+své spolunauty, bratry sesterné vyhlížej,<br />
+v širou dál ostrížím zrakočumem hleď.<br /><br />
+
+V poledne pravé a minutě čtyřicáté páté pozemského mezičasu,<br />
+rozpoznej změn tam vzdušné čistosféry,<br />
+chytneš-li znaky změny správně<br />
+signál pak zjeví se velkolepě mocnědmoucí<br />
+jež odkryje místo ti tajené přede všemi<br />
+tam slizkosvůdný vogonů vůdce dlí.<br /><br />
+
+Malincí vyražte ke kravínu,<br />
+prostřední ku lípě Dobrého ducha<br />
+a velcí k k místu zvanému Kohouty.</div>
+
     <div class="question-prompt">Zadejte otázku, na kterou chcete znát odpověď:</div>
     <div class="input-area">
       <span class="prompt-symbol">&gt;_</span>
@@ -51,7 +106,8 @@
 // Pokus o načtení konfigurace (může selhat na GitHub Pages)
 try {
   const configScript = document.createElement('script');
-  configScript.src = 'config.js';
+  const timestamp = new Date().getTime();
+  configScript.src = `config.js?v=${timestamp}`;
   configScript.onerror = () => {
     console.log('⚠️ Config.js nebyl nalezen - použije se ruční zadání API klíče');
   };
@@ -60,7 +116,6 @@ try {
   console.log('⚠️ Konfigurace se nepodařila načíst');
 }
 </script>
-<script src="script-simple.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
