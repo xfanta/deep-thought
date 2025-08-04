@@ -189,9 +189,11 @@ async function loadMessages() {
     
     if (result.success) {
       displayMessages(result.messages);
-      // Zobrazíme info o úložišti
+      // Zobrazíme info o úložišti a počtu zpráv
       if (result.storage) {
-        document.getElementById('storageInfo').innerHTML = `💾 Úložiště: ${result.storage}`;
+        const storageInfo = `💾 Úložiště: ${result.storage}`;
+        const countInfo = result.count ? ` | 📊 Celkem zpráv: ${result.count}` : '';
+        document.getElementById('storageInfo').innerHTML = storageInfo + countInfo;
       }
     } else {
       showStatus('❌ Chyba při načítání zpráv', 'error');

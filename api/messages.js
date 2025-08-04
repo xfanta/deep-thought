@@ -1,13 +1,31 @@
-// API endpoint pro správu zpráv z hlubiny s trvalým uložením
-// Podporuje více způsobů ukládání dat
+// API endpoint pro správu zpráv z hlubiny s Upstash Redis
+// Optimalizováno pro Vercel Upstash integraci
 
-// Fallback data pro případ nedostupnosti externího úložiště
+// Fallback data pro případ nedostupnosti Redis
 let MESSAGES_CACHE = [];
 
-// Funkce pro načtení zpráv z různých zdrojů
+// Funkce pro načtení zpráv z Upstash Redis
 async function loadMessages() {
   try {
-    // Pokusíme se načíst z Vercel KV (pokud je dostupné)
+    // Upstash Redis REST API
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/get/deep_thought_messages`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.result) {
+          const messages = JSON.parse(data.result);
+          MESSAGES_CACHE = messages; // Aktualizujeme cache
+          return messages;
+        }
+      }
+    }
+    
+    // Fallback na Vercel KV (pokud je nastaven)
     if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
       const response = await fetch(`${process.env.KV_REST_API_URL}/get/messages`, {
         headers: {
@@ -17,11 +35,15 @@ async function loadMessages() {
       
       if (response.ok) {
         const data = await response.json();
-        return data.result ? JSON.parse(data.result) : [];
+        if (data.result) {
+          const messages = JSON.parse(data.result);
+          MESSAGES_CACHE = messages;
+          return messages;
+        }
       }
     }
     
-    // Pokud KV není dostupné, použijeme JSONBin.io jako externí JSON storage
+    // Fallback na JSONBin.io
     if (process.env.JSONBIN_API_KEY && process.env.JSONBIN_BIN_ID) {
       const response = await fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_BIN_ID}/latest`, {
         headers: {
@@ -31,11 +53,12 @@ async function loadMessages() {
       
       if (response.ok) {
         const data = await response.json();
-        return data.record || [];
+        MESSAGES_CACHE = data.record || [];
+        return MESSAGES_CACHE;
       }
     }
     
-    // Fallback na cache v paměti
+    // Poslední fallback na cache v paměti
     return MESSAGES_CACHE;
     
   } catch (error) {
@@ -44,10 +67,28 @@ async function loadMessages() {
   }
 }
 
-// Funkce pro uložení zpráv
+// Funkce pro uložení zpráv do Upstash Redis
 async function saveMessages(messages) {
   try {
-    // Uložení do Vercel KV
+    // Uložení do Upstash Redis
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/set/deep_thought_messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify([JSON.stringify(messages)])
+      });
+      
+      if (response.ok) {
+        MESSAGES_CACHE = messages;
+        console.log('✅ Zprávy uloženy do Upstash Redis');
+        return { success: true, storage: 'Upstash Redis' };
+      }
+    }
+    
+    // Fallback na Vercel KV
     if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
       const response = await fetch(`${process.env.KV_REST_API_URL}/set/messages`, {
         method: 'POST',
@@ -60,11 +101,11 @@ async function saveMessages(messages) {
       
       if (response.ok) {
         MESSAGES_CACHE = messages;
-        return true;
+        return { success: true, storage: 'Vercel KV' };
       }
     }
     
-    // Uložení do JSONBin.io
+    // Fallback na JSONBin.io
     if (process.env.JSONBIN_API_KEY && process.env.JSONBIN_BIN_ID) {
       const response = await fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_BIN_ID}`, {
         method: 'PUT',
@@ -77,18 +118,18 @@ async function saveMessages(messages) {
       
       if (response.ok) {
         MESSAGES_CACHE = messages;
-        return true;
+        return { success: true, storage: 'JSONBin.io' };
       }
     }
     
-    // Fallback na cache v paměti
+    // Poslední fallback - jen cache v paměti
     MESSAGES_CACHE = messages;
-    return true;
+    return { success: true, storage: 'Memory Cache' };
     
   } catch (error) {
     console.error('Chyba při ukládání zpráv:', error);
     MESSAGES_CACHE = messages; // Aspoň do cache
-    return false;
+    return { success: false, storage: 'Error - Memory Fallback' };
   }
 }
 
@@ -112,8 +153,9 @@ export default async function handler(req, res) {
       
       return res.status(200).json({ 
         success: true, 
-        messages: sortedMessages.slice(0, 10), // Zobrazíme pouze posledních 10 zpráv
-        storage: getStorageType()
+        messages: sortedMessages.slice(0, 15), // Zobrazíme posledních 15 zpráv
+        storage: getStorageType(),
+        count: messages.length
       });
     }
 
@@ -136,18 +178,32 @@ export default async function handler(req, res) {
         id: Date.now().toString(),
         message: message.trim(),
         timestamp: new Date().toISOString(),
-        created: new Date().toLocaleString('cs-CZ')
+        created: new Date().toLocaleString('cs-CZ', { 
+          timeZone: 'Europe/Prague',
+          year: 'numeric',
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
       };
 
       messages.push(newMessage);
-      const saved = await saveMessages(messages);
+      
+      // Omezíme na posledních 100 zpráv pro úsporu místa
+      if (messages.length > 100) {
+        messages.splice(0, messages.length - 100);
+      }
+      
+      const saveResult = await saveMessages(messages);
 
       return res.status(201).json({ 
         success: true, 
         message: 'Zpráva byla přidána',
         data: newMessage,
-        storage: getStorageType(),
-        saved: saved
+        storage: saveResult.storage,
+        saved: saveResult.success,
+        count: messages.length
       });
     }
 
@@ -167,13 +223,14 @@ export default async function handler(req, res) {
       }
 
       messages.splice(index, 1);
-      const saved = await saveMessages(messages);
+      const saveResult = await saveMessages(messages);
 
       return res.status(200).json({ 
         success: true, 
         message: 'Zpráva byla smazána',
-        storage: getStorageType(),
-        saved: saved
+        storage: saveResult.storage,
+        saved: saveResult.success,
+        count: messages.length
       });
     }
 
@@ -183,18 +240,21 @@ export default async function handler(req, res) {
     console.error('API Error:', error);
     return res.status(500).json({ 
       success: false, 
-      error: 'Interní chyba serveru' 
+      error: 'Interní chyba serveru: ' + error.message
     });
   }
 }
 
 // Funkce pro určení typu úložiště
 function getStorageType() {
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return 'Upstash Redis ⚡';
+  }
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    return 'Vercel KV (Redis)';
+    return 'Vercel KV (Redis) 🔥';
   }
   if (process.env.JSONBIN_API_KEY && process.env.JSONBIN_BIN_ID) {
-    return 'JSONBin.io';
+    return 'JSONBin.io 🌐';
   }
-  return 'Memory Cache';
+  return 'Memory Cache 💾';
 }

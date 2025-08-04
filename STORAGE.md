@@ -1,25 +1,46 @@
 # 💾 Nastavení trvalého úložiště dat
 
-Aplikace podporuje více způsobů trvalého ukládání zpráv:
+Aplikace podporuje více způsobů trvalého ukládání zpráv s prioritním použitím Upstash Redis:
 
-## 🔴 Option 1: Vercel KV (Redis) - DOPORUČENO
+## � Option 1: Upstash Redis - DOPORUČENO PRO VERCEL
 
-Nejlepší řešení pro Vercel. Rychlé, spolehlivé, plně managed.
+**Nejlepší řešení dostupné přímo na Vercel platformě.**
 
 ### Nastavení:
-1. V Vercel dashboardu jděte do projektu → Settings → Storage
-2. Vytvořte nový KV database
-3. Přidejte environment proměnné:
+1. V Vercel dashboardu jděte do projektu → Storage → Browse Storage Partners
+2. Vyberte **"Upstash" → "Serverless DB (Redis, Vector, Queue)"**
+3. Klikněte "Add Integration" a dokončete setup
+4. Vercel automaticky přidá environment proměnné:
    ```
-   KV_REST_API_URL=https://your-kv-url.vercel-storage.com
-   KV_REST_API_TOKEN=your-token-here
+   UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
+   UPSTASH_REDIS_REST_TOKEN=your-token
+   ```
+5. Přidejte ještě manuálně:
+   ```
+   ADMIN_KEY=your-secret-admin-key
+   ```
+
+**Výhody:** 
+- ⚡ Bleskově rychlé
+- 🔄 Automatické zálohování
+- 🎯 Nativní Vercel integrace
+- 💰 Generous free tier (10K commands/day)
+- 🌍 Global edge locations
+
+## 🟡 Option 2: Vercel KV - ALTERNATIVA
+
+Vercel vlastní KV storage (také Redis-based).
+
+### Nastavení:
+1. V Vercel dashboardu → Storage → Create KV Database
+2. Environment proměnné se přidají automaticky:
+   ```
+   KV_REST_API_URL=https://your-kv.vercel-storage.com
+   KV_REST_API_TOKEN=your-token
    ADMIN_KEY=your-admin-key
    ```
 
-**Výhody:** Rychlé, bezpečné, automatické zálohování
-**Nevýhody:** Placené po určitém limitu
-
-## 🟡 Option 2: JSONBin.io - ZDARMA
+## � Option 3: JSONBin.io - EXTERNÍ ZDARMA
 
 Externí JSON úložiště, zdarma až 10,000 requests/měsíc.
 
@@ -34,30 +55,23 @@ Externí JSON úložiště, zdarma až 10,000 requests/měsíc.
    ADMIN_KEY=your-admin-key
    ```
 
-**Výhody:** Zdarma, snadné nastavení
-**Nevýhody:** Externí závislost, rate limity
+## � Option 4: Memory Cache - FALLBACK
 
-## 🟢 Option 3: Memory Cache - FALLBACK
+Automatický fallback pokud žádné externí úložiště není nastavené.
 
-Pokud žádné externí úložiště není nastavené, data se ukládají jen do paměti serveru.
+## 📋 Doporučený postup pro Vercel:
 
-**Výhody:** Žádné nastavení
-**Nevýhody:** Data se ztratí při restartu
-
-## 📋 Postup nasazení s trvalým úložištěm:
-
-1. **Vyberte si způsob úložiště** (doporučuji Vercel KV)
-2. **Nastavte environment proměnné** ve Vercel
+1. **Přidejte Upstash Redis integraci** (nejjednodušší)
+2. **Nastavte ADMIN_KEY** environment proměnnou
 3. **Redeploy** aplikaci
 4. **Testujte** admin panel na `/admin.html`
 
-## 🔍 Kontrola stavu úložiště:
+## 🔍 Automatická detekce úložiště:
 
-API vrací informaci o použitém úložišti:
-```json
-{
-  "success": true,
-  "messages": [...],
-  "storage": "Vercel KV (Redis)" // nebo "JSONBin.io" nebo "Memory Cache"
-}
-```
+API automaticky detekuje a používá dostupné úložiště v tomto pořadí:
+1. **Upstash Redis** (priorita #1)
+2. **Vercel KV** (priorita #2) 
+3. **JSONBin.io** (priorita #3)
+4. **Memory Cache** (fallback)
+
+Admin panel zobrazuje aktuálně používané úložiště.
