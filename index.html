@@ -57,7 +57,7 @@ async function loadMessagesFromDepth() {
       container.innerHTML = result.messages.map(msg => `
         <div class="message-item">
           <div class="message-timestamp">[${msg.created}]</div>
-          <div>${msg.message}</div>
+          <div>${formatMessageWithLineBreaks(msg.message)}</div>
         </div>
       `).join('');
     } else {
@@ -73,6 +73,20 @@ async function loadMessagesFromDepth() {
     `;
     console.log('API nedostupné, zobrazuji fallback zprávu');
   }
+}
+
+// Funkce pro konverzi zalomení řádků na HTML <br> tagy
+function formatMessageWithLineBreaks(message) {
+  if (!message) return '';
+  
+  // Nahradíme \n a \r\n za <br> tagy a escapujeme HTML
+  return message
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\r?\n/g, '<br>');
 }
 
 // Načteme zprávy po načtení stránky

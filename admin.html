@@ -209,9 +209,23 @@ function displayMessages(messages) {
         <span>${msg.created}</span>
         <button class="delete-btn" onclick="deleteMessage('${msg.id}')">🗑 SMAZAT</button>
       </div>
-      <div>${msg.message}</div>
+      <div>${formatMessageWithLineBreaks(msg.message)}</div>
     </div>
   `).join('');
+}
+
+// Funkce pro konverzi zalomení řádků na HTML <br> tagy
+function formatMessageWithLineBreaks(message) {
+  if (!message) return '';
+  
+  // Nahradíme \n a \r\n za <br> tagy a escapujeme HTML
+  return message
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\r?\n/g, '<br>');
 }
 
 async function deleteMessage(id) {
